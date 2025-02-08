@@ -1,4 +1,4 @@
-from flask import Flask, jsonify
+from flask import Flask, jsonify, request
 from twilio.rest import Client
 from dotenv import load_dotenv
 import os
@@ -10,20 +10,23 @@ load_dotenv()
 TWILIO_ACCOUNT_SID = os.getenv("SID")
 TWILIO_AUTH_TOKEN = os.getenv("TOKEN")
 TWILIO_PHONE_NUMBER = os.getenv("NUMBER")
-RECEIVER_PHONE_NUMBER = os.getenv("PHONE_NUMBER")
 
 client = Client(TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN)
 
 @app.route('/make-call', methods=['GET'])
 def make_call():
     try:
-        # TwiML response to play a voice message
+        receiver_phone_number = request.args.get('phone')
 
+        if not receiver_phone_number:
+            return jsonify({"error": "Receiver phone number is required"}), 400
+
+        # TwiML response to play a voice message
         twiml_response = "<Response><Say voice='Polly.Aditi' language='en-IN'>Alerting! This is an emergency message. Please take immediate action.</Say></Response>"
 
         # Initiate the call
         call = client.calls.create(
-            to=RECEIVER_PHONE_NUMBER,
+            to=receiver_phone_number,
             from_=TWILIO_PHONE_NUMBER,
             twiml=twiml_response  # Twilio will read this message
         )
@@ -35,7 +38,3 @@ def make_call():
 
 if __name__ == '__main__':
     app.run(debug=True)
-
-
-
-
