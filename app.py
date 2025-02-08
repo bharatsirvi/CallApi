@@ -17,12 +17,13 @@ client = Client(TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN)
 def make_call():
     try:
         receiver_phone_number = request.args.get('phone')
+        message = request.args.get('message', 'Alerting! Ram ram sa ram ram sa ram ram.')
 
         if not receiver_phone_number:
             return jsonify({"error": "Receiver phone number is required"}), 400
 
-        # TwiML response to play a voice message
-        twiml_response = "<Response><Say voice='Polly.Aditi' language='en-IN'>Alerting! This is an emergency message. Please take immediate action.</Say></Response>"
+        # TwiML response with dynamic message
+        twiml_response = f"<Response><Say voice='Polly.Aditi' language='en-IN'>{message}</Say></Response>"
 
         # Initiate the call
         call = client.calls.create(
